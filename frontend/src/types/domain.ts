@@ -1,7 +1,11 @@
 export interface User{id:number;name:string;email:string;role:string}
 export interface Instrument{id:number;code:string;name:string;serial:string;unit:string;lower:number;upper:number}
-export interface Dataset{id:number;name:string;reference_id:number;candidate_id:number;source_file:string;note:string;row_count:number}
+export interface Dataset{id:number;name:string;reference_id:number;candidate_id:number;source_file:string;note:string;row_count:number;version:number;revision_of_id:number|null;has_successor:boolean}
 export interface Reading{id:number;dataset_id:number;sample_code:string;reference_value:number;candidate_value:number}
+export interface CorrectionChange{sample_code:string;reference_before:number;reference_after:number;candidate_before:number;candidate_after:number}
+export interface RevisionPreview{parent_dataset_id:number;parent_name:string;base_version:number;change_count:number;noop_count:number;row_count:number;correction_hash:string;changes:CorrectionChange[]}
+export interface RevisionConfirm{revision_id:number;new_dataset_id:number;new_name:string;version:number;idempotent_hit:boolean;change_count:number;noop_count:number}
+export interface RevisionTrail{id:number;parent_dataset_id:number;parent_name:string;base_version:number;new_dataset_id:number;new_name:string;version:number;reason:string;created_by:string;created_at:string;corrections:CorrectionChange[]}
 export interface Point{code:string;x:number;y:number;mean:number;diff:number}
 export interface Result{n:number;intercept:number;slope:number;intercept_ci:number[];slope_ci:number[];bias:number;sd_difference:number;loa_lower:number;loa_upper:number;bias_ci:number[];lower_ci:number[];upper_ci:number[];correlation:number;spread_ratio:number;heteroscedastic_warning:boolean;bootstrap_success:number;bootstrap_failed:number;bootstrap_seed:number;fingerprint:string;x_range:number[];y_range:number[];config:{lambda_ratio:number;allowance:number;range_low:number;range_high:number;bootstrap_count:number};raw_eligible:boolean;instrument_codes:string[];points:Point[]}
 export interface Run{id:number;name:string;dataset_id:number;lambda_ratio:number;allowance:number;range_low:number;range_high:number;bootstrap_count:number;status:string;error:string;created_at:string;result:Partial<Result>}

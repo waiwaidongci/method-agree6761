@@ -5,14 +5,16 @@ from sqlalchemy import text
 from redis import Redis
 from src.config.database import Base,engine
 from src.config.settings import SEED_DEMO,REDIS_URL
+from src.utils.schema_upgrade import ensure_revision_schema
 from src import models
-from src.routes import auth,instruments,datasets,readings,runs,qualifications,audit
+from src.routes import auth,instruments,datasets,readings,runs,qualifications,audit,revisions
 from src.middlewares.audit import AuditMiddleware
 from src.middlewares.errors import ErrorMiddleware
 from src.middlewares.rate_limit import RateLimitMiddleware
 @asynccontextmanager
 async def lifespan(app):
     Base.metadata.create_all(engine)
+    ensure_revision_schema(engine)
     if SEED_DEMO:
         try:
             from scripts.seed_demo import seed
@@ -21,7 +23,7 @@ async def lifespan(app):
     yield
 app=FastAPI(title="瓷光光学测量比对簿",lifespan=lifespan)
 app.add_middleware(AuditMiddleware);app.add_middleware(RateLimitMiddleware);app.add_middleware(ErrorMiddleware)
-for mod in (auth,instruments,datasets,readings,runs,qualifications,audit):app.include_router(mod.router)
+for mod in (auth,instruments,datasets,readings,runs,qualifications,audit,revisions):app.include_router(mod.router)
 @app.get("/health")
 def health():
     with engine.connect() as conn:conn.execute(text("SELECT 1"))

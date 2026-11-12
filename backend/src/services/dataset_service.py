@@ -6,7 +6,8 @@ from src.models import PairDataset,PairedReading,Instrument
 from src.schemas.reading import ReadingInput
 def list_datasets(db):
     rows=db.execute(select(PairDataset,func.count(PairedReading.id)).outerjoin(PairedReading,PairedReading.dataset_id==PairDataset.id).group_by(PairDataset.id)).all()
-    return [{"id":d.id,"name":d.name,"reference_id":d.reference_id,"candidate_id":d.candidate_id,"source_file":d.source_file,"note":d.note,"row_count":n} for d,n in rows]
+    successor_parents={pid for (pid,) in db.execute(select(PairDataset.revision_of_id).where(PairDataset.revision_of_id.is_not(None))).all()}
+    return [{"id":d.id,"name":d.name,"reference_id":d.reference_id,"candidate_id":d.candidate_id,"source_file":d.source_file,"note":d.note,"row_count":n,"version":d.version,"revision_of_id":d.revision_of_id,"has_successor":d.id in successor_parents} for d,n in rows]
 def create_dataset(db,data):
     if data.reference_id==data.candidate_id:raise HTTPException(422,"参考与候选必须为不同仪器")
     ref=db.get(Instrument,data.reference_id);candidate=db.get(Instrument,data.candidate_id)

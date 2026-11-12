@@ -10,4 +10,6 @@ class PairDataset(Base):
     candidate_id:Mapped[int]=mapped_column(ForeignKey("instruments.id"))
     source_file:Mapped[str]=mapped_column(String(180))
     note:Mapped[str]=mapped_column(String(600),default="")
+    version:Mapped[int]=mapped_column(default=1)
+    revision_of_id:Mapped[int|None]=mapped_column(ForeignKey("pair_datasets.id"),nullable=True,default=None)
     created_at:Mapped[datetime]=mapped_column(DateTime,default=datetime.utcnow)
